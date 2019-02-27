@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/css/themes/icon.css}">
+    <link rel="stylesheet" th:href="@{/css/themes/default/easyui.css}">
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/jquery.easyui.min.js}"></script>
+    <script th:src="@{/js/easyui-lang-zh_CN.js}"></script>
+</head>
+<body class="easyui-layout">
+<div id="p" align="center" style="padding: 20px" data-options="region:'center',title:'登录界面',fit:true,collapsible:false">
+    <form id="form_login" method="post">
+        <table cellspacing="5">
+            <tr>
+                <td>密码</td>
+                <td><input name="userName" class="easyui-validatebox" data-options="required:true"></td>
+            </tr>
+            <tr>
+                <td>账号</td>
+                <td><input type="password" name="password" class="easyui-validatebox" data-options="required:true"></td>
+            </tr>
+            <tr>
+                <td colspan="2">&emsp;&emsp;&emsp;<a onclick="dologin()" class="easyui-linkbutton"
+                                                     data-options="iconCls:'icon-ok'">登录</a>
+                    &emsp;<a id="btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'">注册</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<script>
+    function dologin() {
+        $("#form_login").form('submit', {
+            url: "user/dologin",
+            success: function (data) {
+                data = eval('(' + data + ')');
+                if (data.code = 1) {//返回状页面态码为1 登录成功，跳转index
+                    location.href = "index.html";
+                } else {
+                    $.messager.alert('系统提示', data.messager);
+
+                }
+            }
+        })
+
+    }
+</script>
+</body>
+</html>

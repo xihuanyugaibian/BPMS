@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/css/themes/icon.css}">
+    <link rel="stylesheet" th:href="@{/css/themes/default/easyui.css}">
+    <link rel="stylesheet" th:href="@{/css/themes/tree.css}">
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/jquery.easyui.min.js}"></script>
+    <script th:src="@{/js/easyui-lang-zh_CN.js}"></script>
+</head>
+<body>
+<div id="tb">
+    <a class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="oepnAddDialog()">添加</a>
+    <a class="easyui-linkbutton" data-options="iconCls:'icon-edit'" onclick="openModifyDialog()">修改</a>
+    <a class="easyui-linkbutton" data-options="iconCls:'icon-remove'" onclick="deleteUser()">删除</a>
+    <form>
+        用户名：<input type="text" name="uname" id="uname">
+        用户角色： <select name="roleId" id="cb" class="easyui-combobox" data-options="width:100,url:'/role/roleList',valueField:'roleId',
+textField:'roleName'"></select>
+        <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="searchUser()">搜索</a>
+    </form>
+</div>
+
+</div>
+<table class="easyui-datagrid"
+       data-options="title:'用户管理',url:'/user/dataList',fitColumns:true,pagination:true,rownumbers:true,pageNumber:1,pageSize:5,pageList:[5,10,15],toolbar:'#tb'">
+    <thead>
+    <tr>
+        <th data-options="checkbox:true"></th>
+        <th data-options="field:'userId',width:5">编号</th>
+        <th data-options="field:'userName',width:15">用户名</th>
+        <th data-options="field:'roleName',width:30,align:'left',formatter: function(value,row,index){return row.role.roleName}">用户角色
+        </th>
+        <th data-options="field:'userDescription',width:100,align:'left'">备注</th>
+    </tr>
+    </thead>
+</table>
+
+
+</body>
+</html>

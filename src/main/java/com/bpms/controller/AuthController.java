@@ -41,7 +41,13 @@ public class AuthController {
         List<Auth> auths = authService.findAllAuths();
         String authIds = roleServcie.getAuthIds(roleId);
         return TreeUtil.authsToNode(auths, authIds, -1);
+    }
 
 
+    @RequestMapping("/dataList")
+    @ResponseBody
+    public List<Auth> dataList() {
+        List<Auth> auths = authService.findAllAuths();
+        return TreeUtil.authsToNode_treegrid(auths, -1);
     }
 }

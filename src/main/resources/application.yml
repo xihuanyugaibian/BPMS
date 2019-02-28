@@ -5,6 +5,12 @@ spring:
     url: jdbc:mysql://localhost:3306/bcs?serverTimezone=GMT%2B8
     username: root
     driver-class-name: com.mysql.jdbc.Driver
+    druid:
+      max-wait: 10000
+      min-idle: 10
+      max-active: 100
+      filters: stat,wall,logback
+      use-global-data-source-stat: true
   thymeleaf:
     cache: false
   mvc:

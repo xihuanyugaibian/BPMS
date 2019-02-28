@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/css/themes/icon.css}">
+    <link rel="stylesheet" th:href="@{/css/themes/default/easyui.css}">
+    <link rel="stylesheet" th:href="@{/css/themes/tree.css}">
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/jquery.easyui.min.js}"></script>
+    <script th:src="@{/js/easyui-lang-zh_CN.js}"></script>
+
+</head>
+<body>
+
+<div id="tb">
+    <a class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="openAddDialog()">添加</a>
+    <a class="easyui-linkbutton" data-options="iconCls:'icon-edit'" onclick="openModifyDialog()">修改</a>
+    <a class="easyui-linkbutton" data-options="iconCls:'icon-remove'" onclick="deleteAuth()">删除</a>
+</div>
+
+</div>
+<!--rownumbers 显示一列行号。没有这个属性，在界面，点击哪个会变色，处于选中状态。用这个的，搭配复选框，勾选 -->
+<table id="dg" class="easyui-treegrid"
+       data-options="title:'菜单管理',url:'/auth/dataList',idField:'authId',treeField:'authName',fitColumns:true,toolbar:'#tb'">
+    <thead>
+    <tr>
+        <th data-options="field:'authId',width:5">菜单编号</th>
+        <th data-options="field:'authName',width:50">菜单名称</th>
+        <th data-options="field:'iconCls',width:15,formatter:iconFormatter">图标</th>
+        <th data-options="field:'authPath',width:20,align:'left'">链接地址</th>
+        <th data-options="field:'authDescription',width:100,align:'left'">备注</th>
+    </tr>
+    </thead>
+</table>
+<div id="dlg" class="easyui-dialog" data-options="width:500,height:300,modal:true,closed:true,buttons:'#buts'">
+    <form id="fm">
+        <input type="hidden" name="parentId" id="parentId">
+        <table>
+            <tr>
+                <td>菜单名称：</td>
+                <td>
+                    <input type="text" name="authName">
+                </td>
+                <td>菜单样式：</td>
+                <td>
+                    <input type="text" name="iconCls">
+                </td>
+            </tr>
+            <tr>
+                <td>链接路径：</td>
+                <td>
+                    <input type="text" name="authPath">
+                </td>
+                <td>权限标识：</td>
+                <td>
+                    <input type="text" name="perms">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    备注：
+                </td>
+                <td colspan="3">
+                    <textarea name="authDescription" cols="40" rows="10"></textarea>
+                </td>
+            </tr>
+        
+        </table>
+    </form>
+    <div id="buts">
+        <a class="easyui-linkbutton" onclick="operate()" data-options="iconCls:'icon-ok'">保存</a>
+        <a class="easyui-linkbutton" data-options="iconCls:'icon-cancel'">关闭</a>
+    </div>
+</div>
+
+<script>
+    //显示图片
+    function iconFormatter(value, row, index) {
+        return "<span class='" + row.iconCls + "'>&nbsp;&nbsp;&nbsp;&nbsp;</span>";
+    }
+
+    var url = "";
+    //
+    function openAddDialog() {
+        var rows = $("#dg").treegrid("getSelections");
+        if (rows.length != 1) {
+            $.messager.alert("系统提示", "请选择一条数据");
+            return;
+        }
+        $("#dlg").dialog("open").dialog("setTitle", "添加菜单");
+        $("#parentId").val(rows[0].authId);
+        url = "/auth/add";
+    }
+
+    function operate() {
+        $("#fm").form("submit", {
+            url: url,
+            method: "post",
+            success: function (data) {
+                data = eval("(" + data + ")");
+                if (data.code == 0) {
+                    $.messager.alert("系统提示", data.message);
+                    $("#dlg").dialog("close");
+                    $("#fm").form("clear");
+                    $("#dg").treegrid("reload");
+                } else {
+                    $.messager.alert("系统提示", data.message);
+                }
+            }
+        });
+        url = "";
+    }
+
+    //删除角色
+    function deleteAuth() {
+        var rows = $("#dg").treegrid("getSelections");
+        if (rows.length != 1) {
+            $.messager.alert("系统提示", "请选择一条数据");
+            return;
+        }
+        var param = {
+            authId: rows[0].authId,
+            parentId: rows[0].parentId
+        }
+
+        $.post("/auth/delete", param, function (data) {
+            if (data.code == 0) {
+                $.messager.alert("系统提示", data.message);
+                $("#dg").treegrid("reload");
+            } else {
+                $.messager.alert("系统提示", data.message);
+            }
+        }, "json");
+    }
+
+</script>
+</body>
+</html>

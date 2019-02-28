@@ -1,5 +1,8 @@
 package com.bpms.pojo;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Auth {
     private Integer authId;
 
@@ -16,6 +19,16 @@ public class Auth {
     private String iconCls;
 
     private String perms;
+
+    private List children = new ArrayList();
+
+    public List getChildren() {
+        return children;
+    }
+
+    public void setChildren(List children) {
+        this.children = children;
+    }
 
     public Integer getAuthId() {
         return authId;

@@ -12,19 +12,18 @@
 </head>
 <body>
 <div id="tb">
-    <a class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="oepnAddDialog()">添加</a>
-    <a class="easyui-linkbutton" data-options="iconCls:'icon-edit'" onclick="openModifyDialog()">修改</a>
+    <a class="easyui-linkbutton" data-options="iconCls:'icon-add'" onclick="openAddRoleDialog()">添加</a>
+    <a class="easyui-linkbutton" data-options="iconCls:'icon-edit'" onclick="openModifyRoleDialog()">修改</a>
     <a class="easyui-linkbutton" data-options="iconCls:'icon-remove'" onclick="deleteUser()">删除</a>
     <a class="easyui-linkbutton" data-options="iconCls:'icon-roleManage'" onclick="openAuthDialog()">角色授权</a>
     <form>
-        角色名称：<input name="roleName" id="uname">
-        <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="searchUser()">搜索</a>
+        角色名称：<input name="roleName" id="roleName">
+        <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="searchRoles()">搜索</a>
     </form>
 </div>
-
 </div>
 <table id="dg" class="easyui-datagrid"
-       data-options="title:'用户管理',url:'/role/dataList',fitColumns:true,pagination:true,rownumbers:true,pageNumber:1,pageSize:5,pageList:[5,10,15],toolbar:'#tb'">
+       data-options="title:'角色管理',url:'/role/dataList',fitColumns:true,pagination:true,rownumbers:true,pageNumber:1,pageSize:5,pageList:[5,10,15],toolbar:'#tb'">
     <thead>
     <tr>
         <th data-options="checkbox:true"></th>
@@ -34,47 +33,169 @@
     </tr>
     </thead>
 </table>
-
-
-<div id="roledlg" class="easyui-dialog" data-options="width:300,height:500,title:'角色授权',modal:true,closed:true,buttons:'#roledlg_buts'">
-    <ul id="tree"></ul>
+<div id="dlg" class="easyui-dialog"
+     data-options="onClose:function(){$('#fm').form('clear')},modal:true,closed:true,width:500,height:300,buttons:'#buts'"
+     style="padding: 10px 20px">
+    <form id="fm">
+        <input type="hidden" name="roleId" id="roleId">
+        <table>
+            <tr>
+                <td>角色名称：</td>
+                <td>
+                    <input type="text" name="roleName">
+                </td>
+            </tr>
+            <tr>
+                <td>备注：</td>
+                <td>
+                    <textarea name="roleDescription" cols="30" rows="10"></textarea>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div id="buts">
+        <a class="easyui-linkbutton" data-options="iconCls:'icon-ok'" onclick="operate()">保存</a>
+        <a class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" onclick="closeDlg()">关闭</a>
+    </div>
 </div>
+<div id="roledlg" class="easyui-dialog"
+     data-options="width:300,height:500,title:'角色授权',modal:true,closed:true,buttons:'#roledlg_buts'">
+    <ul id="tree"></ul>
+    
+    
+    <div id="roledlg_buts">
+        <a class="easyui-linkbutton" data-options="iconCls:'icon-ok'" onclick="operateAuth()">授权</a>
+        <a class="easyui-linkbutton" data-options="iconCls:'icon-cancel'" onclick="closeRoledlg()">关闭</a>
+    </div>
+</div>
+
+
 <script>
+    function searchRoles() {
+        $("#dg").datagrid("reload", {roleName: $("#roleName").val()})
+    }
+
+    var url = "";
+
+    //打开添加角色对话框，并设置请求路径
+    function openAddRoleDialog() {
+        $("#dlg").dialog("open").dialog("setTitle", "添加角色");
+        url = "/role/addRole";
+    }
+
+    //打开修改角色对话框
+    function openModifyRoleDialog() {
+        var rows = $("#dg").datagrid("getSelections");
+        if (rows.length != 1) {
+            $.messager.alert("系统提示", "请选择一条数据");
+            return;
+        }
+        //将选中行的数据加载到表单中
+        $("#fm").form("load", rows[0]);
+        $("#dlg").dialog("open").dialog("setTitle", "修改角色信息");
+        url = "/role/updateRole";
+    }
+
+    function closeDlg() {
+        $("#dlg").dialog("close");
+        $("#fm").form("clear");
+    }
+
+    //执行对话框内容
+    function operate() {
+        $("#fm").form("submit", {
+            url: url,
+            success: function (data) {
+                data = eval("(" + data + ")");
+                if (data.code == 0) {
+                    $.messager.alert("系统提示", data.message);
+                    $("#dlg").dialog("close");
+                    $("#dg").datagrid("reload");
+                    $("#fm").form("clear");
+                } else {
+                    $.messager.alert("系统提示", data.message);
+                }
+                url = "";
+            }
+        })
+    }
+
+
+    //对角色进行授权
+    function operateAuth() {
+        var rows = $("#dg").datagrid("getSelections");
+        if (rows.length != 1) {
+            $.messager.alert("系统提示", "请选择一条数据");
+            return;
+        }
+
+        var arr = $("#tree").tree("getChecked");//角色被授权的所有权限
+        var paramStr = "";
+        for (var i in arr) {//把被授权的id组成一个字符串
+            paramStr += arr[i].id + ",";
+        }
+        //提交的信息 被授权角色的id  授的权限id
+        var param = {
+            roleId: rows[0].roleId,
+            authIds: paramStr
+        }
+
+        $.getJSON("/role/updateAuth", param, function (data) {
+            if (data.code == 0) {
+                $.messager.alert("系统提示", data.message);
+                $("#roledlg").dialog("close");
+            } else {
+                $.messager.alert("系统提示", data.message);
+            }
+        });
+
+    }
+
+    function closeRoledlg() {
+        $("#roledlg").dialog("close");
+    }
+
+    //关于权限树，如果这个权限下有管理的子权限，角色是否可以拥有该权限但不拥有具体的子权限
+    /*获取并展开权限树*/
     function openAuthDialog() {
         var rows = $("#dg").datagrid("getSelections");
         if (rows.length != 1) {
             $.messager.alert("系统提示", "请选择一条数据进行授权");
             return;
         }
-        $("#roledlg").dialog("open");
-        var roleId = rows[0].roleId;
-        var eventNode; //undefined
-        //加载权限树
+        $("#roledlg").dialog("open");//打开权限树对话框
+        var roleId = rows[0].roleId;//获取当前选中的角色的roleId
+        var eventNode; //声明一个未定义的变量
+        //加载权限树，从后台获取的数据是一个list，list中包含node节点对象，node中有一个children属性，如果这个节点有子节点（数量未知），那么子节点会存在children属相的list结合中。还有就往下层存
+        //easyUI框架，tree组件会自动解析，list集合中对象的（id，text，checked，attributes，children等符合组件定义好的类型和字段一致）的数据
         $("#tree").tree({
             url: '/auth/loadAuthsTree/' + roleId,
             lines: true,
             checkbox: true,
             animate: true,
-            cascadeCheck: false,
+            cascadeCheck: false,//到此已经把获取到权限树，只不过没有展示开来
             // onLoadSuccess: function () {
             //     $("#tree").tree("expandAll");
             // },
-            onCheck: function (node, checked) {//node触发事件的当前节点对象，checked是否选中
+            //js代码与组件配合，完成勾选时级联的效果
+            onCheck: function (node, checked) {//点击复选框的时候触发，node复选框的对应的节点信息，checked复选框的状态
                 if (!eventNode) {
                     eventNode = node;
-                    treeUp = true;
+                    treeUp = true;//是否执行向上父节点的操作
                 }
-                var tree = $("#tree");
+                var tree = $("#tree");//整个权限树对象
+
                 if (treeUp) {//执行向上父节点的操作
 
-                    var parentNode = tree.tree("getParent", node.target);//获取当前节点的父节点
+                    var parentNode = tree.tree("getParent", node.target);//获取当前节点的父节点（获取DOM对象的父节点），target：为node的DOM对象，作为getParent方法的参数
 
-                    if (parentNode) {//如果有父节点
-                        if (checked && parentNode.checked == false) {//如果是选中
+                    if (parentNode) {//父节点存在
+                        if (checked && parentNode.checked == false) {//当前节点被选中，并且当前节点的父节点没有被选中，就把当前节点的父节点设置为选中状态
                             //console.log("父节点："+parentNode);
-                            tree.tree("check", parentNode.target);//级联选中父节点
-                        } else {//如果是反选
-                            //获取触发事件的当前节点 的父节点下的所有子节点
+                            tree.tree("check", parentNode.target);//级联当前节点的父节点
+                        } else {
+                            //当前节点没有被选中，或者当前节点被选中，并且父节点也被选中
+                            //当前节点 的父节点下的所有子节点，获取同级节点childNode，同级节点是否有被选中的，有就把父节点设置为被选中
                             var childNode = tree.tree("getChildren", parentNode.target);
                             var isCheck = false;
                             for (var i = 0; i < childNode.length; i++) {
@@ -89,17 +210,20 @@
                         }
                     }
                     treeUp = false;
+                    //点击的节点存在，并且指向过级联
                     if (!treeUp && eventNode) {
                         //获取当前触发事件节点对象的子节点
                         var childNode = tree.tree("getChildren", eventNode.target);
-                        //console.log(childNode);
+
                         //标记本次点击事件结束
                         eventNode = null;//null在布尔环境中false   0  ""
                         if (checked) {
+                            //如果本节点本勾选，其下所有子节点都勾选
                             for (var i = 0; i < childNode.length; i++) {
                                 tree.tree("check", childNode[i].target);
                             }
                         } else {
+                            //取消勾选，其下所有子节点都取消勾选
                             for (var i = 0; i < childNode.length; i++) {
                                 tree.tree("uncheck", childNode[i].target);
                             }
@@ -109,6 +233,7 @@
             }
         })
     }
+
 </script>
 </body>
 </html>

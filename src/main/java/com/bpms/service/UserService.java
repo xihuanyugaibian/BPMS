@@ -13,4 +13,5 @@ public interface UserService {
 
     List<User> findUserByCondition(Integer pageNum, Integer pageSize, User user);
 
+    User findUserByName(String userName);
 }

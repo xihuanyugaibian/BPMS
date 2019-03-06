@@ -1,16 +1,19 @@
 server:
   port: 8080
 spring:
+#  要打包在不同的系统上运行，可以先指定系统数据库所在的地址为用户名密码，进行连接运行，成功再打包
   datasource:
-    url: jdbc:mysql://localhost:3306/bcs?serverTimezone=GMT%2B8
+    url: jdbc:mysql://192.168.3.178:3306/rbac_system?serverTimezone=GMT%2B8
     username: root
     driver-class-name: com.mysql.jdbc.Driver
+#    对druid进行配置
     druid:
       max-wait: 10000
       min-idle: 10
       max-active: 100
-      filters: stat,wall,logback
-      use-global-data-source-stat: true
+      filters: stat,wall,logback #展示视图servlet，设置过滤器，stat 用于接受状态，wall 用于防止SQL注入，logback 说明使用的日式输出
+      use-global-data-source-stat: true #统计所有的数据源状态
+    password: 123456
   thymeleaf:
     cache: false
   mvc:

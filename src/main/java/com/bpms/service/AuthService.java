@@ -8,4 +8,6 @@ public interface AuthService {
     List<Auth> findAuths(Integer userId, Integer parentId);
 
     List<Auth> findAllAuths();
+
+    List<String> findPerms(Integer userId);
 }

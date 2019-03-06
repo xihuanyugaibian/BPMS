@@ -3,8 +3,12 @@ package com.bpms.controller;
 import com.bpms.pojo.User;
 import com.bpms.service.UserService;
 import com.bpms.util.ResultUtil;
-import com.bpms.util.StringBean;
 import com.github.pagehelper.PageInfo;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.UnknownAccountException;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,12 +29,26 @@ public class UserController {
     @RequestMapping("/dologin")
     @ResponseBody
     public ResultUtil dologin(User user, HttpSession session) {
-        User dbuser = userService.dologin(user);
-        if (dbuser != null) {
-            session.setAttribute(StringBean.CURRENT_USER, dbuser);
+        Subject subject = SecurityUtils.getSubject();
+        UsernamePasswordToken token = new UsernamePasswordToken(user.getUserName(), user.getPassword());
+        try {
+            subject.login(token);
+            System.out.println("认证通过");
             return ResultUtil.ok();
+        } catch (UnknownAccountException e) {
+            System.out.println("账户不对");
+            ResultUtil.error("账号或者密码错误");
+        } catch (AuthenticationException e) {
+            System.out.println("认证失败");
+            return ResultUtil.error("账号或者密码错误");
         }
-        return ResultUtil.error("账号或者密码错误");
+        return null;
+        //User dbuser = userService.dologin(user);
+        //if (dbuser != null) {
+        //    session.setAttribute(StringBean.CURRENT_USER, dbuser);
+        //    return ResultUtil.ok();
+        //}
+        //return ResultUtil.error("账号或者密码错误");
     }
 
     @RequestMapping("/dataList")

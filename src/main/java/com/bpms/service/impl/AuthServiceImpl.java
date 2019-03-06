@@ -21,8 +21,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public List<Auth> findAllAuths() {
-
         return authMapper.queryAll();
+    }
+
+    @Override
+    public List<String> findPerms(Integer userId) {
+
+        return authMapper.findPerms(userId);
     }
 
 }

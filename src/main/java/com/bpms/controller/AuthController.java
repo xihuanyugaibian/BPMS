@@ -4,9 +4,9 @@ import com.bpms.pojo.Auth;
 import com.bpms.pojo.User;
 import com.bpms.service.AuthService;
 import com.bpms.service.RoleServcie;
-import com.bpms.util.StringBean;
 import com.bpms.util.TreeNode;
 import com.bpms.util.TreeUtil;
+import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,7 +30,9 @@ public class AuthController {
     @RequestMapping("/loadTreeNode")
     @ResponseBody
     public List<TreeNode> loadTreeNode(@RequestParam(value = "id", required = false, defaultValue = "-1") Integer parentId, HttpSession session) {
-        User user = (User) session.getAttribute(StringBean.CURRENT_USER);
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        System.out.println("数据库查到的当前用户信息：" + user);
+        //User user = (User) session.getAttribute(StringBean.CURRENT_USER);
         List<Auth> auths = authService.findAuths(user.getUserId(), parentId);
         return TreeUtil.authsToNode(auths);
     }

@@ -32,6 +32,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> findUserByCondition(Integer pageNum, Integer pageSize, User user) {
 
-        return userMapper.queryByCondition(pageNum,pageSize,user);
+        return userMapper.queryByCondition(pageNum, pageSize, user);
+    }
+
+    @Override
+    public User findUserByName(String userName) {
+
+
+        return userMapper.queryByName(userName);
     }
 }

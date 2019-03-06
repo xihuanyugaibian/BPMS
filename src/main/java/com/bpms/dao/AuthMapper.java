@@ -20,4 +20,6 @@ public interface AuthMapper {
     List<Auth> queryAuths(Integer userId, Integer parentId);
 
     List<Auth> queryAll();
+
+    List<String> findPerms(Integer userId);
 }

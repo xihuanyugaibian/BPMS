@@ -15,6 +15,19 @@ public class User {
 
     private String userDescription;
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "userId=" + userId +
+                ", userName='" + userName + '\'' +
+                ", password='" + password + '\'' +
+                ", salt='" + salt + '\'' +
+                ", userType=" + userType +
+                ", role=" + role +
+                ", userDescription='" + userDescription + '\'' +
+                '}';
+    }
+
     public Integer getUserId() {
         return userId;
     }
